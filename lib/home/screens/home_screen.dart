@@ -83,6 +83,7 @@ class _HomeScreenState extends State<HomeScreen> {
               ),
               child: TextFormField(
                 controller: userNameTextController,
+                textCapitalization: TextCapitalization.words,
                 validator: (value) {
                   if (value == null || value.isEmpty) {
                     return "Field can't be empty";
