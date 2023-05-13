@@ -6,7 +6,6 @@ import 'package:flutter_background_location_service/location_service/logic/locat
 import 'package:flutter_background_location_service/notification/notification.dart';
 import 'package:flutter_background_location_service/utility/shared_preference/shared_preference.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:geolocator/geolocator.dart';
 
@@ -23,9 +22,12 @@ class _HomeScreenState extends State<HomeScreen> {
   final userNameTextController = TextEditingController();
   GlobalKey<FormState> formkey = GlobalKey<FormState>();
 
+  late BackgroundService backgroundService;
+
   @override
   void initState() {
     super.initState();
+    backgroundService = BackgroundService();
   }
 
   @pragma('vm:entry-point')
@@ -34,14 +36,10 @@ class _HomeScreenState extends State<HomeScreen> {
     await context.read<NotificationService>().initialize(context);
 
     //Start the service automatically if it was activated before closing the application
-    if (await BackgroundService().instance.isRunning()) {
-      // await BackgroundService().instance.startService();
-      await BackgroundService().initializeService();
+    if (await backgroundService.instance.isRunning()) {
+      await backgroundService.initializeService();
     }
-    BackgroundService()
-        .instance
-        .on('on_location_changed')
-        .listen((event) async {
+    backgroundService.instance.on('on_location_changed').listen((event) async {
       if (event != null) {
         final position = Position(
           longitude: double.tryParse(event['longitude'].toString()) ?? 0.0,
@@ -129,7 +127,7 @@ class _HomeScreenState extends State<HomeScreen> {
                       const SizedBox(height: 8),
                       ElevatedButton(
                         onPressed: () async {
-                          BackgroundService().stopService();
+                          backgroundService.stopService();
                           await context
                               .read<LocationControllerCubit>()
                               .stopLocationFetch();
@@ -149,6 +147,9 @@ class _HomeScreenState extends State<HomeScreen> {
                   onPressed: () async {
                     if (formkey.currentState!.validate()) {
                       FocusScope.of(context).unfocus();
+                      await Fluttertoast.showToast(
+                        msg: "Wait for a while, Initializing the service...",
+                      );
                       final permission = await context
                           .read<LocationControllerCubit>()
                           .enableGPSWithPermission();
@@ -159,17 +160,13 @@ class _HomeScreenState extends State<HomeScreen> {
                           data: userNameTextController.text.trim(),
                         );
 
-                        Fluttertoast.showToast(
-                          msg: "Wait for a while, Initializing the service...",
-                        );
-
                         await context
                             .read<LocationControllerCubit>()
                             .locationFetchByDeviceGPS();
                         //Configure the service notification channel and start the service
-                        await BackgroundService().initializeService();
+                        await backgroundService.initializeService();
                         //Set service as foreground.(Notification will available till the service end)
-                        BackgroundService().setServiceAsForeGround();
+                        backgroundService.setServiceAsForeGround();
                       }
                     }
                   },

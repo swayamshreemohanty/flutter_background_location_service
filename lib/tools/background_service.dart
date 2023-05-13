@@ -13,6 +13,8 @@ const int foregroundServiceNotificationId = 888;
 const String initialNotificationTitle = "TRACK YOUR LOCATION";
 const String initialNotificationContent = "Initializing";
 
+const int timeInterval = 10; //in seconds
+
 @pragma('vm:entry-point')
 void onStart(ServiceInstance service) async {
   DartPluginRegistrant.ensureInitialized();
@@ -34,14 +36,14 @@ void onStart(ServiceInstance service) async {
   });
 
   // bring to foreground
-  Timer.periodic(const Duration(seconds: 1), (timer) async {
+
+  Timer.periodic(const Duration(seconds: timeInterval), (timer) async {
     if (service is AndroidServiceInstance) {
       if (await service.isForegroundService()) {
-        final permission = await Geolocator.checkPermission();
-        if (permission == LocationPermission.always) {
-          Geolocator.getPositionStream().listen((Position position) async {
+        Geolocator.getPositionStream().listen((Position position) async {
+          final permission = await Geolocator.checkPermission();
+          if (permission == LocationPermission.always) {
             service.invoke('on_location_changed', position.toJson());
-            // await UpdateLocationOnDbCubit().updateLocation(position: position);
 
             final userName = await CustomSharedPreference()
                 .getData(key: SharedPreferenceKeys.userName);
@@ -56,12 +58,11 @@ void onStart(ServiceInstance service) async {
               androidNotificationDetails: const AndroidNotificationDetails(
                 notificationChannelId,
                 notificationChannelId,
-                // icon: 'ic_bg_service_small',
                 ongoing: true,
               ),
             );
-          });
-        }
+          }
+        });
       }
     }
   });
