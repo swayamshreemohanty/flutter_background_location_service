@@ -1,12 +1,13 @@
 // ignore_for_file: public_member_api_docs, sort_constructors_first, use_build_context_synchronously
 import 'dart:async';
 import 'package:flutter/material.dart';
-import 'package:flutter_background_location_service/utility/background_service.dart';
+import 'package:flutter_background_location_service/tools/background_service.dart';
 import 'package:flutter_background_location_service/location_service/logic/location_controller/location_controller_cubit.dart';
 import 'package:flutter_background_location_service/notification/notification.dart';
 import 'package:flutter_background_location_service/utility/shared_preference/shared_preference.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:geolocator/geolocator.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -134,23 +135,6 @@ class _HomeScreenState extends State<HomeScreen> {
                         },
                         child: const Text("Stop sending"),
                       ),
-                      const SizedBox(height: 8),
-                      ElevatedButton(
-                        onPressed: () async {
-                          context.read<NotificationService>().showNotification(
-                                androidNotificationDetails:
-                                    const AndroidNotificationDetails(
-                                  "route",
-                                  "route",
-                                ),
-                                title: "Navigation",
-                                body:
-                                    "Click here to open application and navigate to new screen.",
-                                payload: "service",
-                              );
-                        },
-                        child: const Text("show notification"),
-                      ),
                     ],
                   ),
                 );
@@ -173,6 +157,11 @@ class _HomeScreenState extends State<HomeScreen> {
                           key: SharedPreferenceKeys.userName,
                           data: userNameTextController.text.trim(),
                         );
+
+                        Fluttertoast.showToast(
+                            msg:
+                                "Wait for a while, Initializing the service...");
+
                         await context
                             .read<LocationControllerCubit>()
                             .locationFetchByDeviceGPS();

@@ -2,6 +2,7 @@
 import 'dart:async';
 import 'dart:ui';
 import 'package:flutter_background_location_service/notification/notification.dart';
+import 'package:flutter_background_location_service/utility/shared_preference/shared_preference.dart';
 import 'package:flutter_background_service/flutter_background_service.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:geolocator/geolocator.dart';
@@ -42,10 +43,13 @@ void onStart(ServiceInstance service) async {
             service.invoke('on_location_changed', position.toJson());
             // await UpdateLocationOnDbCubit().updateLocation(position: position);
 
+            final userName = CustomSharedPreference()
+                .getData(key: SharedPreferenceKeys.userName);
+
             await NotificationService(FlutterLocalNotificationsPlugin())
                 .showNotification(
               showNotificationId: foregroundServiceNotificationId,
-              title: "Hii, User",
+              title: "Hii, $userName",
               body:
                   'Your Latitude: ${position.latitude}, Longitude: ${position.longitude}',
               payload: "service",
