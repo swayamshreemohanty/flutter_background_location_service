@@ -160,8 +160,8 @@ class _HomeScreenState extends State<HomeScreen> {
                         );
 
                         Fluttertoast.showToast(
-                            msg:
-                                "Wait for a while, Initializing the service...");
+                          msg: "Wait for a while, Initializing the service...",
+                        );
 
                         await context
                             .read<LocationControllerCubit>()
