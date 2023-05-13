@@ -148,12 +148,12 @@ class _HomeScreenState extends State<HomeScreen> {
                 return ElevatedButton(
                   onPressed: () async {
                     if (formkey.currentState!.validate()) {
+                      FocusScope.of(context).unfocus();
                       final permission = await context
                           .read<LocationControllerCubit>()
                           .enableGPSWithPermission();
 
                       if (permission) {
-                        FocusScope.of(context).unfocus();
                         await CustomSharedPreference().storeData(
                           key: SharedPreferenceKeys.userName,
                           data: userNameTextController.text.trim(),
