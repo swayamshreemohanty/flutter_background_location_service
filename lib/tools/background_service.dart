@@ -43,7 +43,7 @@ void onStart(ServiceInstance service) async {
             service.invoke('on_location_changed', position.toJson());
             // await UpdateLocationOnDbCubit().updateLocation(position: position);
 
-            final userName = CustomSharedPreference()
+            final userName = await CustomSharedPreference()
                 .getData(key: SharedPreferenceKeys.userName);
 
             await NotificationService(FlutterLocalNotificationsPlugin())
